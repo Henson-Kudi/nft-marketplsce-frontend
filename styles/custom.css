@@ -45,6 +45,19 @@
     z-index: -1000;
 }
 
+.show-wallet.wallet-cont {
+    visibility: visible;
+    z-index: 1000;
+}
+
+.show-wallet .wallet {
+    right: 0;
+}
+
+.filter-options.show-filter {
+    z-index: 1000;
+}
+
 .select-collection.show-collection {
     top: 100%;
     visibility: visible;

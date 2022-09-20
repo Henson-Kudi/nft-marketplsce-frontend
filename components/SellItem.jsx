@@ -349,9 +349,9 @@ export default forwardRef(function SellItem(
             params: {
                 nftAddress: tokenAddress,
                 tokenId: tokenId,
-                price: saleAmount,
-                startTime: Math.floor(start_time.getTime() / 1000),
-                endTime: Math.floor(end_time.getTime() / 1000),
+                price: ethers.utils.parseEther(saleAmount).toString(),
+                startTime: start_time.getTime(),
+                endTime: end_time.getTime(),
             },
         }
 

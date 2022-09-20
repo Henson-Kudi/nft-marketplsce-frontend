@@ -20,6 +20,7 @@ export default function NftBox({
     marketplaceAddress,
     measurementUnit,
     getTokenData,
+    price_decimal,
 }) {
     const makeOfferRef = useRef(null)
     const { runContractFunction } = useWeb3Contract()
@@ -32,7 +33,7 @@ export default function NftBox({
     const dispatchNotification = useNotification()
 
     const dispatchError = (err) => {
-        makeOfferRef.current.classList.remove("show-modal")
+        // makeOfferRef.current.classList.remove("show-modal")
         dispatchNotification({
             position: "topR",
             type: "error",
@@ -42,7 +43,7 @@ export default function NftBox({
     }
 
     const dispatchSuccess = (message) => {
-        makeOfferRef.current.classList.remove("show-modal")
+        // makeOfferRef.current.classList.remove("show-modal")
         dispatchNotification({
             position: "topR",
             type: "success",
@@ -195,7 +196,7 @@ export default function NftBox({
 
                 <p className="pt-3 font-bold">Price</p>
                 <p>
-                    <span>{price}</span> <span className="font-bold">{tokenSymbol}</span>
+                    <span>{price_decimal}</span> <span className="font-bold">{tokenSymbol}</span>
                 </p>
 
                 {endTime > startTime && (
@@ -205,14 +206,14 @@ export default function NftBox({
                 )}
             </div>
             {owner === account ? (
-                <div className="p-2 bg-blue md:absolute md:-bottom-10 md:group-hover:bottom-0 transition-all duration-300 left-0 w-full text-center font-bold cursor-pointer">
+                <div className="p-2 bg-blue text-white md:absolute md:-bottom-10 md:group-hover:bottom-0 transition-all duration-300 left-0 w-full text-center font-bold cursor-pointer">
                     <p>You own this item</p>
                 </div>
             ) : (
                 <div>
                     {status !== "unlisted" && (
                         <div
-                            className="p-2 bg-blue md:absolute md:-bottom-10 md:group-hover:bottom-0 transition-all duration-300 left-0 w-full text-center font-bold cursor-pointer"
+                            className="p-2 bg-blue text-white md:absolute md:-bottom-10 md:group-hover:bottom-0 transition-all duration-300 left-0 w-full text-center font-bold cursor-pointer"
                             onClick={handleBuyNft}
                         >
                             <p>{status === "auctioned" ? "Place Bid" : "Buy Now"}</p>

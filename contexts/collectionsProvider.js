@@ -26,9 +26,15 @@ export const CollectionsProvider = ({ children }) => {
         setCategories(categories)
     }
 
+    const getLocalStorage = async () => {
+        const connected = localStorage.getItem("provider")
+
+        connected && enableWeb3()
+    }
+
     useEffect(() => {
         getCollections()
-        enableWeb3()
+        getLocalStorage()
         return () => {}
     }, [])
 

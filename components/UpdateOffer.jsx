@@ -97,6 +97,14 @@ export default forwardRef(function UpdateOffer(
     const handleUpdateOffer = async (e) => {
         e.stopPropagation()
 
+        if (Number(amount) <= 0) {
+            return alert("Amount must be gretater than zero (0)")
+        }
+
+        if (text === "Update Bid" && Number(amount) < Number(value)) {
+            return alert("Bid cannot be less than auction price")
+        }
+
         const offerParams = {
             abi: nftMarketplace,
             contractAddress: marketplaceAddress,
@@ -106,15 +114,7 @@ export default forwardRef(function UpdateOffer(
                 deadline: new Date(date.endDate()).getTime(),
                 tokenId: tokenId,
             },
-            msgValue: amount,
-        }
-
-        if (Number(amount) <= 0) {
-            return alert("Amount must be gretater than zero (0)")
-        }
-
-        if (text === "Update Bid" && Number(amount) < Number(value)) {
-            return alert("Bid cannot be less than auction price")
+            msgValue: ethers.utils.parseEther(amount),
         }
 
         setLoadingVisible("visible")

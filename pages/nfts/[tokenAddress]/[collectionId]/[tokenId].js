@@ -26,6 +26,14 @@ import { DarkModeContext } from "../../../../contexts/darkModeprovider"
 import { baseUrl as axios } from "../../../../utils/axios"
 import { handleGetRequest, handlePostRequest } from "../../../../utils/requests"
 
+// social images
+import Image from "next/image"
+import discord from "../../../../assets/images/discord.webp"
+import fb from "../../../../assets/images/fb.png"
+import tele from "../../../../assets/images/tele.png"
+import twitter from "../../../../assets/images/twitter.jpg"
+import youtube from "../../../../assets/images/youtube.jpg"
+
 export default function TokenId({ params }) {
     const reportRef = useRef(null)
     const shareOptionsRef = useRef(null)
@@ -43,7 +51,6 @@ export default function TokenId({ params }) {
 
     const [collection, setCollection] = useState({})
     const [listedNfts, setListedNfts] = useState([])
-    const [otherNfts, setOthernfts] = useState([])
     const [tokenSymbol, setTokenSymbol] = useState("")
     const [offerText, setOfferText] = useState("Make Offer")
     const [updateOfferText, setUpdateOfferText] = useState("Update Offer")
@@ -110,12 +117,6 @@ export default function TokenId({ params }) {
         const collection = await handleGetRequest(`/collections/${collectionId}`)
 
         setCollection(collection)
-
-        setOthernfts(
-            collection?.nfts?.filter(
-                (nft) => nft?.nft_address !== tokenAddress && nft?.token_id !== tokenId
-            )
-        )
 
         setListedNfts(collection?.nfts?.filter((nft) => nft?.status !== "unlisted"))
 
@@ -184,7 +185,7 @@ export default function TokenId({ params }) {
                 nftAddress: tokenAddress,
                 tokenId: tokenId,
             },
-            msgValue: token?.nft?.price_decimal,
+            msgValue: token?.nft?.price,
         }
 
         await runContractFunction({
@@ -265,7 +266,7 @@ export default function TokenId({ params }) {
                 nftAddress: nft?.nft_address,
                 tokenId: nft?.token_id,
             },
-            msgValue: nft?.price_decimal,
+            msgValue: nft?.price,
         }
 
         await runContractFunction({
@@ -311,6 +312,16 @@ export default function TokenId({ params }) {
                 dispatchError(err)
                 setLoadingVisible("invisible")
             },
+        })
+    }
+
+    const copyText = () => {
+        navigator.clipboard.writeText(window.location)
+        dispatchNotification({
+            position: "topR",
+            message: "copied",
+            type: "success",
+            title: "Success",
         })
     }
 
@@ -521,10 +532,43 @@ export default function TokenId({ params }) {
                         </div>
                     </div>
                     <div className="image-cont h-64 md:h-128 border rounded-b-lg overflow-hidden">
-                        <img
-                            src={tokenData?.image?.replace("ipfs://", "https://ipfs.io/ipfs/")}
-                            className="w-full h-full"
-                        />
+                        {tokenData?.video ? (
+                            <video
+                                className="w-full h-full"
+                                width={"100%"}
+                                height={"100%"}
+                                controls
+                                preload="metadata"
+                                src={tokenData?.video?.replace("ipfs://", "https://ipfs.io/ipfs/")}
+                                poster={tokenData?.image?.replace(
+                                    "ipfs://",
+                                    "https://ipfs.io/ipfs/"
+                                )}
+                            ></video>
+                        ) : tokenData?.audio ? (
+                            <div className="flex flex-col w-full h-full">
+                                <img
+                                    src={tokenData?.image?.replace(
+                                        "ipfs://",
+                                        "https://ipfs.io/ipfs/"
+                                    )}
+                                    className="w-full h-full"
+                                />
+                                <audio
+                                    controls
+                                    src={tokenData?.audio?.replace(
+                                        "ipfs://",
+                                        "https://ipfs.io/ipfs/"
+                                    )}
+                                    className="w-full h-10"
+                                ></audio>
+                            </div>
+                        ) : (
+                            <img
+                                src={tokenData?.image?.replace("ipfs://", "https://ipfs.io/ipfs/")}
+                                className="w-full h-full"
+                            />
+                        )}
                     </div>
 
                     <div className="mt-2 border rounded-lg overflow-hidden">
@@ -568,39 +612,129 @@ export default function TokenId({ params }) {
                                         : "No information about collection"}
                                 </div>
 
-                                <div className="flex justify-center items-center my-1">
+                                <div className="flex gap-1 justify-center items-center my-1">
                                     {collection?.collection?.website && (
                                         <div
-                                            className="px-2 py-1 rounded-md border w-max cursor-pointer"
-                                            onClick={() => openUrl(collection?.collection.website)}
+                                            className="px-2 py-1 rounded-md w-max cursor-pointer"
+                                            onClick={() =>
+                                                openUrl(
+                                                    collection?.collection?.website?.startsWith(
+                                                        "https://" || "http://"
+                                                    )
+                                                        ? collection?.collection?.website
+                                                        : `https://${collection?.collection?.website}`
+                                                )
+                                            }
                                         >
                                             <FontAwesomeIcon icon={faGlobe} />
                                         </div>
                                     )}
-                                    {/* {collection?.collection?.discord && (
-                                    <div className="px-2 py-1 rounded-md border w-max cursor-pointer"
-                                        onClick={() => openUrl(collection?.collection.discord)}>
-                                        <FontAwesomeIcon icon={faDiscord} />
-                                    </div>
-                                )}
-                                {collection?.collection?.facebook && (
-                                    <div className="px-2 py-1 rounded-md border w-max cursor-pointer"
-                                        onClick={() => openUrl(collection?.collection.facebook)}>
-                                        <FontAwesomeIcon icon={faFacebook} />
-                                    </div>
-                                )}
-                                {collection?.collection?.telegram && (
-                                    <div className="px-2 py-1 rounded-md border w-max cursor-pointer"
-                                        onClick={() => openUrl(collection?.collection.telegram)}>
-                                        <FontAwesomeIcon icon={faTelegram} />
-                                    </div>
-                                )}
-                                {collection?.collection?.youtube && (
-                                    <div className="px-2 py-1 rounded-md border w-max cursor-pointer"
-                                        onClick={() => openUrl(collection?.collection.youtube)}>
-                                        <FontAwesomeIcon icon={faYoutube} />
-                                    </div>
-                                )} */}
+                                    {collection?.collection?.discord && (
+                                        <div
+                                            className="px-1 py-1 rounded-md w-max cursor-pointer"
+                                            onClick={() =>
+                                                openUrl(
+                                                    collection?.collection.discord?.startsWith(
+                                                        "https://" || "http://"
+                                                    )
+                                                        ? collection?.collection.discord
+                                                        : `https://${collection?.collection.discord}`
+                                                )
+                                            }
+                                        >
+                                            <Image
+                                                width={20}
+                                                height={20}
+                                                className="m-auto rounded-full"
+                                                src={discord}
+                                            />
+                                        </div>
+                                    )}
+                                    {collection?.collection?.facebook && (
+                                        <div
+                                            className="px-1 py-1 rounded-md w-max cursor-pointer grid items-center"
+                                            onClick={() =>
+                                                openUrl(
+                                                    collection?.collection.facebook?.startsWith(
+                                                        "https://" || "http://"
+                                                    )
+                                                        ? collection?.collection.facebook
+                                                        : `https://${collection?.collection.facebook}`
+                                                )
+                                            }
+                                        >
+                                            <Image
+                                                src={fb}
+                                                width={20}
+                                                height={20}
+                                                className="m-auto rounded-full"
+                                            />
+                                        </div>
+                                    )}
+                                    {collection?.collection?.telegram && (
+                                        <div
+                                            className="px-1 py-1 rounded-md w-max cursor-pointer grid items-center"
+                                            onClick={() =>
+                                                openUrl(
+                                                    collection?.collection.telegram?.startsWith(
+                                                        "https://" || "http://"
+                                                    )
+                                                        ? collection?.collection.telegram
+                                                        : `https://${collection?.collection.telegram}`
+                                                )
+                                            }
+                                        >
+                                            <Image
+                                                width={20}
+                                                height={20}
+                                                className="m-auto rounded-full"
+                                                src={tele}
+                                            />
+                                        </div>
+                                    )}
+                                    {collection?.collection?.youtube && (
+                                        <div
+                                            className="px-1 py-1 rounded-md w-max cursor-pointer grid items-center"
+                                            onClick={() =>
+                                                openUrl(
+                                                    collection?.collection.youtube?.startsWith(
+                                                        "https://" || "http://"
+                                                    )
+                                                        ? collection?.collection.youtube
+                                                        : `https://${collection?.collection.youtube}`
+                                                )
+                                            }
+                                        >
+                                            <Image
+                                                width={20}
+                                                height={20}
+                                                rounded-full
+                                                className="m-auto"
+                                                src={youtube}
+                                            />
+                                        </div>
+                                    )}
+                                    {collection?.collection?.twitter && (
+                                        <div
+                                            className="px-1 py-1 rounded-md w-max cursor-pointer grid items-center"
+                                            onClick={() =>
+                                                openUrl(
+                                                    collection?.collection.twitter?.startsWith(
+                                                        "https://" || "http://"
+                                                    )
+                                                        ? collection?.collection.twitter
+                                                        : `https://${collection?.collection.twitter}`
+                                                )
+                                            }
+                                        >
+                                            <Image
+                                                width={20}
+                                                height={20}
+                                                className="m-auto rounded-full"
+                                                src={twitter}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -613,7 +747,7 @@ export default function TokenId({ params }) {
                                 />
                                 <span className="font-bold text-lg my-auto">Token Details</span>
                             </div>
-                            <div className="py-4 max-h-52 overflow-y-auto border-b border-slate-100 flex gap-2 flex-wrap">
+                            <div className="py-4 max-h-60 overflow-y-auto border-b border-slate-100 flex gap-2 flex-wrap">
                                 <div className="flex gap-2 justify-between items-center p-1 w-full">
                                     <span className="w-max">Contract Address</span>
                                     <span>{`${tokenAddress?.slice(0, 6)}...${tokenAddress?.slice(
@@ -624,6 +758,11 @@ export default function TokenId({ params }) {
                                 <div className="flex gap-2 justify-between items-center p-1 w-full">
                                     <span className="w-max">Token ID</span>
                                     <span>{`${tokenId}`}</span>
+                                </div>
+
+                                <div className="flex gap-2 justify-between items-center p-1 w-full">
+                                    <span className="w-max">Token Name</span>
+                                    <span>{`${tokenData?.name?.slice(0, 15)}`}</span>
                                 </div>
 
                                 <div className="flex gap-2 justify-between items-center p-1 w-full">
@@ -648,7 +787,15 @@ export default function TokenId({ params }) {
                             {collection?.collection?.website && (
                                 <div
                                     className="cursor-pointer mx-2 my-auto relative group"
-                                    onClick={() => openUrl(collection?.collection?.website)}
+                                    onClick={() =>
+                                        openUrl(
+                                            collection?.collection?.website?.startsWith(
+                                                "https://" || "http://"
+                                            )
+                                                ? collection?.collection?.website
+                                                : `https://${collection?.collection?.website}`
+                                        )
+                                    }
                                 >
                                     <FontAwesomeIcon
                                         icon={faGlobe}
@@ -685,19 +832,31 @@ export default function TokenId({ params }) {
                                         darkMode && "text-black"
                                     }`}
                                 >
-                                    <span className="p-2 border-b cursor-pointer hover:bg-light-dark hover:text-white font-bold">
+                                    <span
+                                        className="p-2 border-b cursor-pointer hover:bg-light-dark hover:text-white font-bold"
+                                        onClick={copyText}
+                                    >
                                         Copy link
                                     </span>
-
-                                    <span className="p-2 border-b cursor-pointer hover:bg-light-dark hover:text-white font-bold">
+                                    <span
+                                        className="p-2 border-b cursor-pointer hover:bg-light-dark hover:text-white font-bold"
+                                        onClick={() =>
+                                            collection?.collection?.website &&
+                                            openUrl(
+                                                `https://www.facebook.com/sharer/sharer.php?u=${collection?.collection.website}`
+                                            )
+                                        }
+                                    >
                                         Share on facebook
                                     </span>
-
-                                    <span className="p-2 border-b cursor-pointer hover:bg-light-dark hover:text-white font-bold">
-                                        Share on instagram
-                                    </span>
-
-                                    <span className="p-2 border-b cursor-pointer hover:bg-light-dark hover:text-white font-bold">
+                                    <span
+                                        className="p-2 border-b cursor-pointer hover:bg-light-dark hover:text-white font-bold"
+                                        onClick={() =>
+                                            openUrl(
+                                                `https://twitter.com/intent/tweet?text=${window.location}`
+                                            )
+                                        }
+                                    >
                                         Share on twitter
                                     </span>
                                 </div>
@@ -743,6 +902,14 @@ export default function TokenId({ params }) {
                         </div>
 
                         <div className="border-r last:border-r-0 pr-2 flex gap-2 items-center">
+                            <span>Created by : </span>
+                            <span>{`${token?.nft?.creator?.slice(
+                                0,
+                                4
+                            )}...${token?.nft?.creator?.slice(-4)}`}</span>
+                        </div>
+
+                        <div className="border-r last:border-r-0 pr-2 flex gap-2 items-center">
                             <span>
                                 <FontAwesomeIcon icon={faHeart} />
                             </span>
@@ -766,9 +933,16 @@ export default function TokenId({ params }) {
                     </div>
 
                     <div className="px-4 py-6 border-b border-l border-r rounded-b-lg">
-                        <div className="py-2">Current Price</div>
-                        <div className="font-bold text-lg md:text-3xl pb-2">
-                            {token?.nft?.price_decimal} {tokenSymbol}
+                        <div className="flex gap-4 items-end">
+                            <div>
+                                <div className="py-2">Current Price</div>
+                                <div className="font-bold text-lg md:text-3xl pb-2">
+                                    {token?.nft?.price_decimal} {tokenSymbol}
+                                </div>
+                            </div>
+                            {token?.nft?.royalty && (
+                                <div className="py-2">Royalties : {token?.nft?.royalty} %</div>
+                            )}
                         </div>
 
                         <div className="flex gap-4 items-center">
@@ -1013,40 +1187,48 @@ export default function TokenId({ params }) {
                 </div>
             </div>
 
-            {otherNfts?.length ? (
+            {collection?.nfts?.length ? (
                 <div className="w-4/5 m-auto mt-4 border rounded-lg overflow-hidden">
                     <div className="px-2 py-4 flex gap-4 items-center border-b-2">
                         <FontAwesomeIcon icon={faBarsStaggered} className="my-auto" />
                         <span className="font-bold text-lg my-auto">More from this collection</span>
                     </div>
 
-                    <div className="flex gap-4 align-middle">
-                        {otherNfts?.map((nft, i) => {
-                            const {
-                                nft_address,
-                                token_id,
-                                price_decimal,
-                                start_time,
-                                end_time,
-                                status,
-                                owner,
-                                collection_id,
-                            } = nft
+                    <div className="flex gap-4 align-middle overflow-x-auto w-full p-2">
+                        {collection?.nfts
+                            ?.filter((nft) => nft?.token_id?.toString() !== tokenId)
+                            ?.map((nft, i) => {
+                                const {
+                                    nft_address,
+                                    token_id,
+                                    price_decimal,
+                                    start_time,
+                                    end_time,
+                                    status,
+                                    owner,
+                                    collection_id,
+                                } = nft
 
-                            return (
-                                <NftBox
-                                    key={`${nft}-${i}`}
-                                    price={price_decimal}
-                                    nftAddress={nft_address}
-                                    tokenId={token_id}
-                                    startTime={start_time}
-                                    endTime={end_time}
-                                    status={status}
-                                    owner={owner}
-                                    collectionId={collection_id}
-                                />
-                            )
-                        })}
+                                return (
+                                    <NftBox
+                                        key={`${nft}-${i}`}
+                                        price={price_decimal}
+                                        nftAddress={nft_address}
+                                        tokenId={token_id}
+                                        startTime={start_time}
+                                        endTime={end_time}
+                                        status={status}
+                                        owner={owner}
+                                        collectionId={collection_id}
+                                    />
+                                )
+                            })}
+                    </div>
+                    <div
+                        className="p-4 rounded-full w-1/3 m-auto my-2 border text-center font-bold cursor-pointer bg-blue text-white"
+                        onClick={() => router.push(`/collections/${collectionId}`)}
+                    >
+                        View Collection
                     </div>
                 </div>
             ) : (

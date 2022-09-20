@@ -70,8 +70,12 @@ export default forwardRef(function UpdateOffer(
         }
     }
 
-    const handleUpdateOffer = async (e) => {
+    const handleUpdateListing = async (e) => {
         e.stopPropagation()
+
+        if (Number(amount) <= 0) {
+            return alert("Amount must be gretater than zero (0)")
+        }
 
         const updateParams = {
             abi: nftMarketplace,
@@ -80,12 +84,8 @@ export default forwardRef(function UpdateOffer(
             params: {
                 nftAddress: tokenAddress,
                 tokenId: tokenId,
-                newPrice: amount,
+                newPrice: ethers.utils.parseEther(amount).toString(),
             },
-        }
-
-        if (Number(amount) <= 0) {
-            return alert("Amount must be gretater than zero (0)")
         }
 
         setLoadingVisible("visible")
@@ -163,7 +163,7 @@ export default forwardRef(function UpdateOffer(
                 <div className="flex justify-center py-2  md:py-4">
                     <button
                         className="p-4 w-4/5 mx-auto rounded-full bg-blue font-bold md:text-lg text-white"
-                        onClick={handleUpdateOffer}
+                        onClick={handleUpdateListing}
                     >
                         Update
                     </button>

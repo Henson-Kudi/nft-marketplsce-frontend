@@ -373,7 +373,7 @@ export default function CreateNft() {
             formData.append("audio", file)
         }
         if (cover) {
-            formData.append("image", file)
+            formData.append("image", cover)
         }
         formData.append("data", JSON.stringify(data))
         try {

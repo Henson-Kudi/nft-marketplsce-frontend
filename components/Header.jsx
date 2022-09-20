@@ -3,7 +3,7 @@ import Link from "next/link"
 import React, { useContext, useRef, useState } from "react"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { WalletModal } from "@web3uikit/web3"
+import WalletModal from "./WalletModal"
 
 // import the icons you need
 import {
@@ -25,6 +25,9 @@ import logo3 from "../assets/images/logo1.png"
 
 export default function Header() {
     const { darkMode, displayDarkMode, removeDarkMode } = useContext(DarkModeContext)
+
+    const ref = useRef(null)
+    const contRef = useRef(null)
 
     const headerContRef = useRef()
 
@@ -52,6 +55,10 @@ export default function Header() {
         }
     }
 
+    const showWalletModal = () => {
+        ref.current.classList.toggle("show-wallet")
+    }
+
     const toggleDarkMode = (e) => {
         e.stopPropagation()
         darkMode ? removeDarkMode() : displayDarkMode()
@@ -71,7 +78,9 @@ export default function Header() {
             <div className="search-box flex-1 text-right " ref={searchBarRef}>
                 <input
                     type="text"
-                    className="search-box border absolute left-1/2 -translate-x-1/2 w-9/10 m-auto sm:static  sm:left-left-unset sm:translate-x-0 border-lightgrey rounded-2xl p-2 hidden md:block outline-0 sm:bg-transparent"
+                    className={`search-box border absolute left-1/2 -translate-x-1/2 w-9/10 m-auto sm:static  sm:left-left-unset sm:translate-x-0 border-lightgrey rounded-2xl p-2 hidden md:block outline-0 sm:bg-transparent ${
+                        darkMode && "text-white"
+                    }`}
                     onKeyDown={handleSearch}
                     placeholder="Search collections by name or id"
                 />
@@ -143,7 +152,7 @@ export default function Header() {
                     </div>
                     <div
                         className="nav flex gap-2 align-middle  cursor-pointer md:p-2"
-                        onClick={() => setOpenWalletModal(true)}
+                        onClick={showWalletModal}
                     >
                         <FontAwesomeIcon icon={faWallet} className="mt-auto mb-auto" />
                         <span className="text-lg md:hidden">wallet</span>
@@ -179,7 +188,8 @@ export default function Header() {
             >
                 <FontAwesomeIcon icon={faBars} onClick={toggleNav} className="open-nav" />
             </div>
-            <WalletModal isOpened={openWalletModal} setIsOpened={setOpenWalletModal} />
+
+            <WalletModal ref={ref} />
         </div>
     )
 }

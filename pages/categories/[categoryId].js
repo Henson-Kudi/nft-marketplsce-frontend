@@ -20,7 +20,7 @@ export default function Category({ category }) {
     return (
         <div className={`p-6 ${darkMode && "bg-dark text-white"} min-h-screen`}>
             <div className="font-bold text-lg md:text-xl capitalize text-center">
-                {category[0]?.name} Collections
+                {category?.name} Collections
             </div>
             <div className="flex flex-wrap gap-2 justify-center align-middle">
                 {filteredCollections?.map((collection, i) => (
